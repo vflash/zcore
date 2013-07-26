@@ -1,0 +1,11 @@
+// https://github.com/vflash/scmod
+
+{
+	"alias": "core",
+
+	"scripts": [
+		"core.js",
+		"core-cookie.js",
+		"core-css.js"
+	]
+}
