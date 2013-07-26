@@ -1,0 +1,4 @@
+zcore
+=====
+
+javascript library
