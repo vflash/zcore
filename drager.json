@@ -1,0 +1,11 @@
+﻿{
+	"modules": {
+		"core": "./core.json",
+		"getDragLayer": "./draglayer.json",
+		"GroupEvents": "./group_events.json"
+	},
+
+	"scripts": [
+		"./drager.js"
+	]
+}

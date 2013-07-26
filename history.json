@@ -1,0 +1,9 @@
+﻿{
+	"modules": {
+		"core": "./core.json"
+	},
+
+	"scripts": [
+		"history.js"
+	]
+}

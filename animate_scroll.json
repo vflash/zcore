@@ -1,0 +1,10 @@
+{
+	"modules": {
+		"core": "../core/core.json",
+		"expansion_event": "./expansion_event.json"
+	},
+
+	"files": [
+		"animate_scroll.js"
+	]
+}

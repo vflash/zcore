@@ -1,0 +1,9 @@
+{
+	"modules": {
+		"core": "./core.json"
+	},
+
+	"scripts": [
+		"./jsonp_loader.js"
+	]
+}

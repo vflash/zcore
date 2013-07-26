@@ -1,0 +1,9 @@
+{
+	"modules": {
+		"core": "./core.json"
+	},
+
+	"scripts": [
+		"xhr_send.js"
+	]
+}
