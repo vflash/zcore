@@ -1,5 +1,6 @@
 // https://github.com/vflash/scmod
 
 {
-	"modules": {"core":"./core.json"}
+	"modules": {"core":"./core.json"},
+	"scripts": ["!![inc] module=core"]
 }
