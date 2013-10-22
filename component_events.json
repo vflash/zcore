@@ -1,0 +1,7 @@
+{
+	"modules": {"core": "./core.json"},
+
+	"scripts": [
+		"./component_events.js"
+	]
+}

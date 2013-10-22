@@ -22,7 +22,7 @@ var module = function(x, y, speed) {
 };
 
 
-core.expand(module, expansion_event);
+core.extend(module, expansion_event);
 
 module.progress = false;
 

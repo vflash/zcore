@@ -169,7 +169,7 @@ core.bind = function (x, fn) {
 	};
 };
 
-core.extend = core.expand = function (o) {
+core.extend = function (o) {
 	var i = 1, l = arguments.length, n, e;
 	if (!o) o = {};
 
@@ -505,7 +505,7 @@ core.unid = (function(x) {
 	Math.floor(Math.random()*50+1000)
 );
 
-
+/*
 core.new_class = (function () {
 	var oc = Object.prototype.constructor;
 
@@ -538,6 +538,47 @@ core.new_class = (function () {
 		s.varclass = c;
 
 		return s;
+	};
+})();
+*/
+
+core.new_class = (function () {
+
+	function cn() { } // null constructor
+
+	return function (c) { //new_class
+		var i, p, s, u;
+		var c = typeof c === 'function' ? new c() : c || {};
+
+		function _class() {
+			var x;
+			if (x = c.parent) x.apply(this, arguments);
+			if (x = c.constructor) {
+				x.apply(this, arguments);
+			};
+		};
+
+		if (c.parent) {
+			cn.prototype = c.parent.prototype;
+			p = new cn; cn.prototype = null;
+
+			if (s = c.prototype) {
+				for (i in s) if (s[i] !== u) p[i] = s[i];
+			};
+
+		} else {
+			p = c.prototype || _class.prototype;
+		};
+
+		if (i = c.varclass) {
+			p[typeof i === 'string' ? i : 'varclass'] = c;
+		};
+
+		p.constructor = _class;
+		_class.prototype = p;
+		_class.varclass = c;
+
+		return _class;
 	};
 })();
 

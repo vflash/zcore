@@ -21,13 +21,21 @@ var module = function (x) {
 				return;
 
 			case 'close':
-				
-				if (connected) {
-					connected = false;
+				if (connected) { connected = false;
 					for (i = 0; x = list[i]; i++) {
 						core.dn(x[0], x[1], x[2], x[3]);
 					}
-				}
+				};
+				return;
+
+			case 'reset':
+				if (connected) { connected = false;
+					for (i = 0; x = list[i]; i++) {
+						core.dn(x[0], x[1], x[2], x[3]);
+					}
+				};
+
+				list.length = 0;
 				return;
 		};
 
