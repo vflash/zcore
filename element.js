@@ -9,7 +9,7 @@
 
 var module = core.new_class(function() {
 
-	this.constructor = function(master) {
+	this.constructor = function BaseElement(master) {
 		this.document = master.document;
 		var self = this;
 
@@ -188,78 +188,6 @@ var module = core.new_class(function() {
 
 
 });
-
-
-function elemSet(set, end) {
-	return function setInterface(params, force, qF) {
-		/*
-			set({key: value, ...}, force);
-			set(key, value, force);
-		*/
-
-		var u, self = this, vs = self
-		, ch = self._changes || (self._changes = {})
-		, value, pv, v, i
-		;
-
-		switch (typeof params) {
-			case 'boolean': force = params; break;
-
-			case 'string': case 'number':
-				var value = force;
-				if (value === u || value === (pv = vs[p])) {
-					break;
-				};
-
-				v = set.call(self, p, value, pv);
-				if (v === u || v === pv) {
-					break;
-				};
-
-				ch[p] = true;
-				vs[p] = v;
-
-				if (qF !== false) {
-					this._changes = {};
-
-					if (end.call(self, ch) === false) {
-						this._changes = ch;
-					};
-				};
-
-				return;
-
-			case 'object': 
-				for (i in p) {
-					value = p[i];
-					if (value === u || value === (pv = vs[i]) ) {
-						continue;
-					};
-
-					v = set.call(self, i, value, pv);
-					if (v === u || v === pv) {
-						continue;
-					};
-
-					ch[i] = true;
-					vs[i] = v;
-				};
-
-				break;
-
-
-			default: return;
-		};
-
-		if (force !== false) for (i in ch) {
-			this._changes = {};
-
-			if (end.call(self, ch) === false) {
-				this._changes = ch;
-			};
-		};
-	}
-};
 
 
 
