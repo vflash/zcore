@@ -74,11 +74,7 @@ var module = core.new_class(function() {
 					vs[p] = v;
 
 					if (!sR) {
-						this._changes = {};
-
-						if (this.refresh(false, ch) === false) {
-							this._changes = ch;
-						};
+						this.refresh(false, ch);
 					};
 
 					return;
@@ -106,16 +102,21 @@ var module = core.new_class(function() {
 			};
 
 			if (!stopRefresh) for (i in ch) {
-				this._changes = {};
-
-				if (end.call(self, ch) === false) {
-					this._changes = ch;
-				};
+				this.refresh(false, ch);
 			};
 		},
 
 		refresh: function(force, changes) {
-			var changes = changes || this._changes;
+			this._changes = {};
+
+			/*
+			var changes = this._changes;
+			this._changes = {};
+
+			if (_refresh(this, changes, force) === false) {
+				this._changes = changes;
+			};
+			*/
 		},
 
 		reflow: function(x) {
@@ -131,13 +132,14 @@ var module = core.new_class(function() {
 			for(i in nodes) {
 				x = nodes[i] || false;
 				if (x.nodeType < 0 && typeof x.connect === 'function') {
-					x.connect(this, this.is_connected);
+					if (!x.parent) x.connect(this, this.is_connected);
 				};
 			};
 		},
 
 		connect: function(parent, is_connected) {
 			var self = this;
+			if (typeof parent !== 'object') return;
 
 			if (parent !== this.parent) {
 				this.parentComponentEvents(this.parent = parent || null);
@@ -156,6 +158,8 @@ var module = core.new_class(function() {
 
 				this.initEvent('connect', this);
 			};
+
+			return this;
 		},
 
 

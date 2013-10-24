@@ -48,7 +48,7 @@ var module = new function() {
 		var dg = function(cmd, p) {
 			switch(cmd) {
 				case 'init':
-					init(handlers, create_drager, p)
+					init(handlers, this/*context*/, p)
 					break;
 
 				case 'stop':
