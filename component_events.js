@@ -23,15 +23,15 @@ function ComponentEvents(cmp, x) {
 
 		if (typeof event === 'object') {
 			if (event === cmp) return;
-			if (cmd) {
+			if (cmp) {
 				for (i = 0; x = list[i]; i++) {
-					core.dn(cmp, x[1], x[2], x[3]);
+					core.dn(cmp, x[0], x[1], x[2]);
 				};
 			};
 
-			if (cmd = event) {
+			if (cmp = event) {
 				for (i = 0; x = list[i]; i++) {
-					core.up(cmp, x[1], x[2], x[3]);
+					core.up(cmp, x[0], x[1], x[2]);
 				};
 			};
 
@@ -40,8 +40,8 @@ function ComponentEvents(cmp, x) {
 
 		list.push([event, handler, dn]);
 
-		if (cmd) {
-			core.up(cmd, event, handler, dn);
+		if (cmp) {
+			core.up(cmp, event, handler, dn);
 		};
 
 		return handler;

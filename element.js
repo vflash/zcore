@@ -1,13 +1,13 @@
 ﻿
 
-var module = ElementBase;
+//var module = BaseElement;
 
 
 /*
 	-------------------------------------
 */
 
-var ElementBase = core.new_class(function() {
+var module = core.new_class(function() {
 
 	this.constructor = function(master) {
 		this.document = master.document;
@@ -20,12 +20,13 @@ var ElementBase = core.new_class(function() {
 		};
 
 		this.parentComponentEvents = new ComponentEvents(null);
-		this.parentComponentEvents('connect', function() {
-			this.is_connected = parent.is_connected ? true : false;
+		this.parentComponentEvents('connect', function(x, vv) {
+			self.is_connected = (self.parent||false).is_connected ? true : false;
 			self.refresh();
 
-			self.initEvent('connect');
+			self.initEvent('connect', self);
 		});
+
 	};
 
 
@@ -38,15 +39,96 @@ var ElementBase = core.new_class(function() {
 		groupEvents: null,
 		parentComponentEvents: null,
 		parent: null, // теневой родительский обьект
-		
 
-		refresh: function(hashChange) {},
-		valid: null, // function(param, newValue, presValue) {...}
-		set: null,
+		valid: function(param, newValue, presValue) {
+			return;
+		};
 
-		reflow: function(x) {this.initEvent('reflow', x)},
+		set: function(params, stopRefresh, sR) {
+			/*
+				set({key: value, ...}, stopRefresh);
+				set(key, value, stopRefresh);
+			*/
 
-		connectAuto: function(nodes) {
+			var u, self = this, vs = self
+			, ch = self._changes || (self._changes = {})
+			, valid = this.valid
+			, value, pv, v, i
+			;
+
+			switch (typeof params) {
+				//case 'boolean': force = params; break;
+
+				case 'string': case 'number':
+					var value = stopRefresh;
+					if (value === u || value === (pv = vs[p])) {
+						break;
+					};
+
+					v = valid.call(self, p, value, pv);
+					if (v === u || v === pv) {
+						break;
+					};
+
+					ch[p] = true;
+					vs[p] = v;
+
+					if (!sR) {
+						this._changes = {};
+
+						if (this.refresh(false, ch) === false) {
+							this._changes = ch;
+						};
+					};
+
+					return;
+
+				case 'object': 
+					for (i in p) {
+						value = p[i];
+						if (value === u || value === (pv = vs[i]) ) {
+							continue;
+						};
+
+						v = valid.call(self, i, value, pv);
+						if (v === u || v === pv) {
+							continue;
+						};
+
+						ch[i] = true;
+						vs[i] = v;
+					};
+
+					break;
+
+
+				default: return;
+			};
+
+			if (!stopRefresh) for (i in ch) {
+				this._changes = {};
+
+				if (end.call(self, ch) === false) {
+					this._changes = ch;
+				};
+			};
+		},
+
+		refresh: function(force, changes) {
+			var changes = changes || this._changes;
+		},
+
+		reflow: function(x) {
+			this.initEvent('reflow', x);
+
+			if (typeof (this.parent||false).reflow === 'function') {
+				this.parent.reflow(this);
+			};
+		},
+
+
+
+		connectChilds: function(nodes) {
 			for(i in nodes) {
 				x = nodes[i] || false;
 				if (x.nodeType < 0 && typeof x.connect === 'function') {
@@ -54,7 +136,6 @@ var ElementBase = core.new_class(function() {
 				};
 			};
 		},
-
 
 		connect: function(parent, is_connected) {
 			var self = this;
@@ -72,14 +153,15 @@ var ElementBase = core.new_class(function() {
 
 				this.is_connected = is_connected ? true : false;
 				this.refresh();
+				
 
-				this.initEvent('connect');
+				this.initEvent('connect', this);
 			};
 		},
 
 
 		appendChild: function(x, boxNode) {
-			if (x == null || typef x !== 'object') return;
+			if (x == null || typeof x !== 'object') return;
 
 			var boxNode = boxNode || this.box || this.node;
 
@@ -89,7 +171,7 @@ var ElementBase = core.new_class(function() {
 
 			if (x.node) boxNode.appendChild(x.node);
 			if (typeof x.connect === 'function') {
-				x.connect(this, this.connected);
+				x.connect(this, this.is_connected);
 			};
 		},
 
@@ -101,7 +183,7 @@ var ElementBase = core.new_class(function() {
 
 			this.connect(null, false);
 		}
-		
+
 	});
 
 
