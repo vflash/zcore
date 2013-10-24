@@ -50,8 +50,8 @@ var module = core.new_class(function() {
 				set(key, value, stopRefresh);
 			*/
 
-			var u, self = this, vs = self
-			, ch = self._changes || (self._changes = {})
+			var u, self = this, vs = this
+			, ch = this._changes || (this._changes = {})
 			, valid = this.valid
 			, value, pv, v, i
 			;
@@ -127,7 +127,6 @@ var module = core.new_class(function() {
 		},
 
 
-
 		connectChilds: function(nodes) {
 			for(i in nodes) {
 				x = nodes[i] || false;
@@ -185,7 +184,6 @@ var module = core.new_class(function() {
 		}
 
 	});
-
 
 });
 
