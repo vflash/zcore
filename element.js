@@ -15,10 +15,6 @@ var module = core.new_class(function() {
 
 		this.groupEvents = new GroupEvents(false);
 
-		if (typeof this.valid === 'function') {
-			this.set = elemSet(null, this.valid, this.refresh);
-		};
-
 		this.parentComponentEvents = new ComponentEvents(null);
 		this.parentComponentEvents('connect', function(x, vv) {
 			self.is_connected = (self.parent||false).is_connected ? true : false;
@@ -42,13 +38,14 @@ var module = core.new_class(function() {
 
 		valid: function(param, newValue, presValue) {
 			return;
-		};
+		},
 
 		set: function(params, stopRefresh, sR) {
 			/*
 				set({key: value, ...}, stopRefresh);
 				set(key, value, stopRefresh);
 			*/
+			if (params == null) return;
 
 			var u, self = this, vs = this
 			, ch = this._changes || (this._changes = {})
@@ -61,17 +58,17 @@ var module = core.new_class(function() {
 
 				case 'string': case 'number':
 					var value = stopRefresh;
-					if (value === u || value === (pv = vs[p])) {
+					if (value === u || value === (pv = vs[params])) {
 						break;
 					};
 
-					v = valid.call(self, p, value, pv);
+					v = valid.call(self, params, value, pv);
 					if (v === u || v === pv) {
 						break;
 					};
 
-					ch[p] = true;
-					vs[p] = v;
+					ch[params] = true;
+					vs[params] = v;
 
 					if (!sR) {
 						this.refresh(false, ch);
@@ -80,8 +77,8 @@ var module = core.new_class(function() {
 					return;
 
 				case 'object': 
-					for (i in p) {
-						value = p[i];
+					for (i in params) {
+						value = params[i];
 						if (value === u || value === (pv = vs[i]) ) {
 							continue;
 						};
@@ -166,13 +163,19 @@ var module = core.new_class(function() {
 		appendChild: function(x, boxNode) {
 			if (x == null || typeof x !== 'object') return;
 
-			var boxNode = boxNode || this.box || this.node;
+			//var boxNode = boxNode || this.box || this.node;
+			for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
+				boxNode = boxNode.box || boxNode.node || false;
+			};
 
 			if (x.nodeType > 0) {
 				return boxNode.appendChild(x);
 			};
 
-			if (x.node) boxNode.appendChild(x.node);
+			var n = x; while(n.nodeType < 0) n = n.node || false;
+			if (n.nodeType > 0) boxNode.appendChild(n);
+			//if (x.node) boxNode.appendChild(x.node);
+
 			if (typeof x.connect === 'function') {
 				x.connect(this, this.is_connected);
 			};
