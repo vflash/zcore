@@ -37,13 +37,14 @@ var module = new function() {
 		if (typeof p.move === 'function') dg('move', p.move);
 		if (typeof p.drag === 'function') dg('drag', p.drag);
 		if (typeof p.end === 'function') dg('end', p.end);
+		if (typeof p.finish === 'function') dg('finish', p.finish);
 
 		return dg;
 	};
 
 	function create_drager() {
 
-		var handlers = {start: [], move: [], drag: [], end: []};
+		var handlers = {start: [], move: [], drag: [], end: [], finish: []};
 
 		var dg = function(cmd, p) {
 			switch(cmd) {
@@ -77,6 +78,12 @@ var module = new function() {
 						handlers.end.push(p);
 					};
 					break;
+
+				case 'finish':
+					if (typeof p === 'function') {
+						handlers.finish.push(p);
+					};
+					break;
 			};
 		};
 		
@@ -104,11 +111,10 @@ var module = new function() {
 				params: p,
 
 				interval: p.interval === false || (typeof p.interval  == 'number' && p.interval > 1) ? p.interval : 20,
-
-				clearRange: !!p.clearRange,
+				deltaDrag: parseInt(p.deltaDrag, 10) >= 0 ? +p.deltaDrag : 5, // радиус за приделы которого наченатеся премешение
 				autoScroll: !!p.autoScroll || p.autoScroll == null,
-				isFromPoint: !!p.isFromPoint,
 				cursor: p.cursor,
+				//clearRange: !!p.clearRange, // авто сброс выделения
 
 				_clientX: event.clientX,
 				_clientY: event.clientY
@@ -154,10 +160,13 @@ var module = new function() {
 		, handlers_move = confg.handlers.move
 		, handlers_drag = confg.handlers.drag
 		, handlers_end = confg.handlers.end
+		, handlers_finish = confg.handlers.finish
 		, hasPagePosition = confg.hasPagePosition
 		, autoScroll = confg.autoScroll
+		, deltaDrag = +confg.deltaDrag
 		, screen = confg.screen
 		, interval = confg.interval
+
 		, clientX = confg._clientX
 		, clientY = confg._clientY
 		, scrollX = screen.scrollLeft
@@ -188,8 +197,6 @@ var module = new function() {
 			n = document.elementFromPoint(x, y);
 			draglayer.hidden(false);
 
-			//document.title = n;
-
 			return n;
 		};
 
@@ -206,6 +213,10 @@ var module = new function() {
 				pageX = clientX + scrollX;
 				pageY = clientY + scrollY;
 			};
+
+			EVENT.ctrlKey = e.ctrlKey;
+			EVENT.altKey = e.altKey;
+			EVENT.shiftKey = e.shiftKey;
 		};
 
 		function move() {
@@ -217,7 +228,7 @@ var module = new function() {
 			EVENT.pageY = pageY;
 
 			if (!is_start) {
-				if (Math.sqrt(Math.pow(pageX - confg.pageXStart, 2) + Math.pow(pageY - confg.pageYStart, 2)) < 10) {
+				if (Math.sqrt(Math.pow(pageX - confg.pageXStart, 2) + Math.pow(pageY - confg.pageYStart, 2)) < deltaDrag) {
 					return;
 				};
 
@@ -245,6 +256,9 @@ var module = new function() {
 		ev(document, 'scroll', function(e) {
 			var x = pageX, y = pageY;
 
+			EVENT.ctrlKey = e.ctrlKey;
+			EVENT.altKey = e.altKey;
+			EVENT.shiftKey = e.shiftKey;
   
 			scrollX = screen.scrollLeft;
 			scrollY = screen.scrollTop;
@@ -264,14 +278,17 @@ var module = new function() {
 
 		ev(document, 'mouseup', function end(e) {
 			if (timmer) clearTimeout(timmer);
+			is_end = true;
 
 			document.onselectstart = null;
-
 			ev('close');
+
 			draglayer.hide();
 
-			if (!is_start) return;
-			is_end = true;
+			if (!is_start) {
+				initEvents(handlers_finish, false, context);
+				return;
+			};
 
 			setPosition(e);
 
@@ -284,6 +301,7 @@ var module = new function() {
 			EVENT.pageY = pageY;
 
 			initEvents(handlers_end, EVENT, context);
+			initEvents(handlers_finish, false, context);
 		});
 
 		ev(document, 'mousemove', function(e) {

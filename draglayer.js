@@ -79,15 +79,17 @@ layer.prototype = {
 		//alert(this.cursor)
 
 		if (is_start) {
-			s.width = s.height = '300px';
+			s.width = s.height = '240px';
 			s.cursor = (typeof this.cursor == 'string') ? this.cursor : 'default';
 		};
 
-		x -= 150;
-		y -= 150;
+		x -= 120;
+		y -= 120;
 
 		s.left = x + 'px';
 		s.top = y + 'px';
+		
+		//s.transform = 'translate('+x+'px, '+y+'px)';
 
 		
 		if (is_start) {
