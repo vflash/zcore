@@ -550,6 +550,43 @@ core.new_class = (function () {
 		var i, p, s, u;
 		var c = typeof c === 'function' ? new c() : c || {};
 
+		var constr = c.constructor;
+		var sclass = c.parent;
+		var _class;
+
+		if (typeof sclass === 'function') {
+			if (typeof constr === 'function') {
+				_class = function _class() {
+					sclass.apply(this, arguments);
+					constr.apply(this, arguments);
+				};
+
+			} else {
+				_class = function _class() {
+					sclass.apply(this, arguments);
+				};
+			};
+
+			//(p = c.prototype).__proto__ = sclass.prototype;
+
+			cn.prototype = sclass.prototype;
+			p = new cn; cn.prototype = null;
+
+			if (s = c.prototype) {
+				for (i in s) if (s[i] !== u) p[i] = s[i];
+			};
+
+		} else {
+			if (typeof constr === 'function') {
+				_class = function _class() {constr.apply(this, arguments)};
+			} else {
+				_class = function _class() {};
+			};
+
+			p = c.prototype || {};
+		};
+
+		/*
 		function _class() {
 			var x;
 			if (x = c.parent) x.apply(this, arguments);
@@ -569,10 +606,13 @@ core.new_class = (function () {
 		} else {
 			p = c.prototype || _class.prototype;
 		};
+		*/
 
+		/*
 		if (i = c.varclass) {
 			p[typeof i === 'string' ? i : 'varclass'] = c;
 		};
+		*/
 
 		p.constructor = _class;
 		_class.prototype = p;
