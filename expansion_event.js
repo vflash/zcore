@@ -40,7 +40,6 @@ var module = {
 		if (g && g[n]) delete (g[n]);
 	},
 
-
 	initEvent: function (n, e1, e2, e3) {
 		var u
 		, a = (this._events_list||false)[n]
@@ -58,18 +57,24 @@ var module = {
 		};
 	},
 
-	//apply as array
-	initEvent_: function (n, as) {
-		var ls = this._events_list, i = 0, l, fn;
-		if (!n || !as || !ls || !(ls = ls[n]) || ls.stopEvent) return;
-		l = ls.length;
+	initEvent_: function (name, as) {
+		var u
+		, a = (this._events_list||false)[name]
+		, i = 0, fn
+		;
 
-		while (i < l) if (fn = ls[i++]) {
-			//try {
-			if (fn.apply(this, as) === false) return false
-			//} catch (e) {console.log(e)};
-		}
+		if (a) {
 
-		//return as;
+			if (typeof as === 'function') {
+				while (i < a.length) if (fn = a[i++]) {
+					if ( as(fn) === false ) return false;
+				};
+
+			} else if (as) {
+				while (i < a.length) if (fn = a[i++]) {
+					if (fn.apply(this, as) === false) return false;
+				};
+			};
+		};
 	}
 };

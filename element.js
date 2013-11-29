@@ -124,10 +124,9 @@ var module = core.new_class(function() {
 			};
 		},
 
-
 		connectChilds: function(nodes) {
 			for(i in nodes) {
-				x = nodes[i] || false;
+				if (x = nodes[i])
 				if (x.nodeType < 0 && typeof x.connect === 'function') {
 					if (!x.parent) x.connect(this, this.is_connected);
 				};
@@ -163,37 +162,123 @@ var module = core.new_class(function() {
 		appendChild: function(x, boxNode) {
 			if (x == null || typeof x !== 'object') return;
 
-			//var boxNode = boxNode || this.box || this.node;
-			for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
-				boxNode = boxNode.box || boxNode.node || false;
-			};
-
 			if (x.nodeType > 0) {
+				for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
+					boxNode = boxNode.box || boxNode.node || false;
+				};
+
 				return boxNode.appendChild(x);
 			};
 
 			var n = x; while(n.nodeType < 0) n = n.node || false;
-			if (n.nodeType > 0) boxNode.appendChild(n);
-			//if (x.node) boxNode.appendChild(x.node);
+
+			if (n.nodeType > 0) { 
+				for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
+					boxNode = boxNode.box || boxNode.node || false;
+				};
+
+				boxNode.appendChild(n);
+
+			} else if (isArray(a)) {
+				append_other(this.document, this, n, 0);
+			};
+
 
 			if (typeof x.connect === 'function') {
 				x.connect(this, this.is_connected);
 			};
 		},
 
-		removeParent: function () { // отключается от родителя
+
+		// отсоеденяется от DOM родителя
+		// отключается от родителя
+		removeParent: function () { 
 			var x;
 			if (x = (this.node || false).parentNode) {
 				x.removeChild(this.node);
 			};
 
 			this.connect(null, false);
+		},
+
+		on: function(name, fn) {
+			this.addEventListener(name, fn);
 		}
 
 	});
+
+
+	var isArray = Array.isArray || new function (o) {
+		var x = Object.prototype.toString, s = x.call([]);
+		return function (o) {
+			return x.call(o) === s
+		}
+	};
+
+	function append_other(d, nn, m, si) {
+		var i = si, l = m.length, a, x;
+		
+		while(i < l) {
+			if (a = m[i++]) {
+				if (a.nodeType) {
+					nn.appendChild(a);
+				};
+
+			} else if (a !== 0) {
+				continue;
+			};
+
+			switch (typeof a) {
+				case 'number': if (a !== a) break;
+				case 'string':
+					nn.appendChild(d.createTextNode(a));
+					break;
+
+				case 'object':
+					if (isArray(a)) append_other(nn, a);
+			};
+
+		};
+	};
 
 });
 
 
 
+cmps.fragment = function(master, p) {
+	this.node = this.box = [];
+	this.name = p.name || null;
+};
+
+cmps.fragment.prototype = {
+	constructor: cmps.fragment,
+	nodeType: -11,
+	node: null,
+	box: null,
+
+	appendChild: function(x) {
+		if (typeof x === 'object' && x.nodeType) {
+			this.box.push(x);
+		};
+	},
+
+	removeParent: function() {
+		var m = this.box, i = 0, x, n, p;
+		while(x = m[i++]) {
+			if (typeof x.removeParent === 'function') {
+				x.removeParent();
+				continue;
+			};
+
+			n = x; while(n.nodeType < 0) n = n.node || false;
+			if (n.nodeType > 0) {
+				if (p = n.parentNode) p.removeChild(n);
+			};
+
+			if (typeof x.connect === 'function') {
+				x.connect(null, false);
+			};
+		};
+	}
+};
 

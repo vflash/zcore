@@ -3,7 +3,8 @@
 		"ComponentEvents": "./component_events.json",
 		"GroupEvents": "./group_events.json",
 		"expansionEvent": "./expansion_event.json",
-		"core": "./core.json"
+		"core": "./core.json",
+		"cmps": "global:cmps"
 	},
 
 	"scripts": [
