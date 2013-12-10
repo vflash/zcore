@@ -28,7 +28,7 @@ core.extend(class_history.prototype, {
 	ieframe: false,
 	current_hash: '', //'/home'
 
-	change: function (new_hash) { },
+	onchange: function (new_hash) { },
 
 	start: function (sh) {
 		var t = this;
