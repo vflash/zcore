@@ -7,7 +7,7 @@ core.domReady(function() {
 
 core.domReady(function() {
 	ramail.hash_history = new core.class_history('/home/');
-	ramail.hash_history.change = function() {
+	ramail.hash_history.onchange = function() {
 	}
 });
 
@@ -19,7 +19,7 @@ function class_history(sh, p) {
 	p = p || false;
 
 	this.document = p.document || document;
-	if (p.change) this.change = p.change;
+	if (p.onchange) this.onchange = p.onchange || p.change;;
 
 	if (sh) this.start(sh, d);
 };
@@ -72,7 +72,7 @@ core.extend(class_history.prototype, {
 			if (hash == '#') hash = '';
 			t.current_hash = hash;
 
-			t.change(hash ? hash.substr(1) : '');
+			t.onchange(hash ? hash.substr(1) : '');
 			setInterval(v = core.bind(t, t.check), 50);
 		});
 	},
@@ -114,7 +114,7 @@ core.extend(class_history.prototype, {
 		if (nh !== u) {
 			t.current_hash = nh;
 			t.history_length = history.length;
-			t.change(nh ? nh.substr(1) : '');
+			t.onchange(nh ? nh.substr(1) : '');
 		}
 	},
 
@@ -157,7 +157,7 @@ core.extend(class_history.prototype, {
 			setTimeout(function () {
 				var v = t.document.location.hash;
 				if (x == v) {
-					t.change(v && v != '#' ? v.substr(1) : '');
+					t.onchange(v && v != '#' ? v.substr(1) : '');
 				}
 			}, 10);
 		}

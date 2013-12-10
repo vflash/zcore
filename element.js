@@ -150,7 +150,6 @@ var module = core.new_class(function() {
 
 				this.is_connected = is_connected ? true : false;
 				this.refresh();
-				
 
 				this.initEvent('connect', this);
 			};
@@ -162,25 +161,19 @@ var module = core.new_class(function() {
 		appendChild: function(x, boxNode) {
 			if (x == null || typeof x !== 'object') return;
 
-			if (x.nodeType > 0) {
-				for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
-					boxNode = boxNode.box || boxNode.node || false;
-				};
-
-				return boxNode.appendChild(x);
+			for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
+				boxNode = boxNode.box || boxNode.node || false;
 			};
+
+			if (x.nodeType > 0) return boxNode.appendChild(x);
 
 			var n = x; while(n.nodeType < 0) n = n.node || false;
 
 			if (n.nodeType > 0) { 
-				for(boxNode = boxNode || this; boxNode.nodeType < 0;) {
-					boxNode = boxNode.box || boxNode.node || false;
-				};
-
 				boxNode.appendChild(n);
 
-			} else if (isArray(a)) {
-				append_other(this.document, this, n, 0);
+			} else if (isArray(n)) {
+				append_other(this.document, boxNode, n, 0);
 			};
 
 
@@ -190,12 +183,22 @@ var module = core.new_class(function() {
 		},
 
 
-		// отсоеденяется от DOM родителя
+		// отсоеденяется от DOM
 		// отключается от родителя
 		removeParent: function () { 
-			var x;
-			if (x = (this.node || false).parentNode) {
-				x.removeChild(this.node);
+			var x = this.node || false, x, n, p;
+
+			while(x.nodeType < 0) {
+				if (typeof x.removeParent === 'function') {
+					x.removeParent();
+					break;
+				};
+
+				x = x.node || false;
+			};
+
+			if (x.nodeType > 0) {
+				if (p = x.parentNode) p.removeChild(x);
 			};
 
 			this.connect(null, false);
@@ -215,29 +218,29 @@ var module = core.new_class(function() {
 		}
 	};
 
-	function append_other(d, nn, m, si) {
+	function append_other(d, boxNode, m, si) {
 		var i = si, l = m.length, a, x;
 		
 		while(i < l) {
-			if (a = m[i++]) {
-				if (a.nodeType) {
-					nn.appendChild(a);
-				};
+			x = m[i++]; if (x == null || typeof x !== 'object') continue;
 
-			} else if (a !== 0) {
+			if (x.nodeType > 0) {
+				boxNode.appendChild(x); 
 				continue;
 			};
 
-			switch (typeof a) {
-				case 'number': if (a !== a) break;
-				case 'string':
-					nn.appendChild(d.createTextNode(a));
-					break;
 
-				case 'object':
-					if (isArray(a)) append_other(nn, a);
+			while(x.nodeType < 0) x = x.node || false;
+
+			if (x.nodeType > 0) {
+				boxNode.appendChild(x); 
+				continue;
 			};
 
+			if (isArray(a)) {
+				append_other(d, boxNode, x, 0);
+				continue;
+			};
 		};
 	};
 
@@ -245,9 +248,14 @@ var module = core.new_class(function() {
 
 
 
+/*
+	-------------------------------------
+	компонент, иметации фрагмента
+*/
+
 cmps.fragment = function(master, p) {
+	this.cmpName = p.name || null;
 	this.node = this.box = [];
-	this.name = p.name || null;
 };
 
 cmps.fragment.prototype = {
@@ -255,6 +263,16 @@ cmps.fragment.prototype = {
 	nodeType: -11,
 	node: null,
 	box: null,
+
+	connect: function(parent, is_connected) {
+		var m = this.box, i = 0, x;
+
+		while(x = m[i++]) {
+			if (typeof x.removeParent === 'function') {
+				x.connect(parent, is_connected);
+			};
+		};
+	},
 
 	appendChild: function(x) {
 		if (typeof x === 'object' && x.nodeType) {
