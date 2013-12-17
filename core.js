@@ -22,6 +22,9 @@ new function () {
 			z.Safari = +i[1];
 		}
 	}
+	else if (/Trident\/\d/.test(ua)) {
+		z.IE = d.documentMode || v || 8;
+	}
 	else if (/Gecko/.test(ua)) {
 		if (i = ua.match(/rv:\d+\.\d+\.(\d)/)) if (i = i[1] / 100) v += i;
 		z.Gecko = (v < 1.9 && d.getElementsByClassName ? 1.9 : v) || 1.9;
