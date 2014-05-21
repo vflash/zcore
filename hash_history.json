@@ -1,0 +1,9 @@
+﻿{
+	"modules": {
+		// "core": "./core.json"
+	},
+
+	"scripts": [
+		"./hash_history.js"
+	]
+}
